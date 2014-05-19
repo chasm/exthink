@@ -47,6 +47,11 @@ exports.setConfig = (app) ->
       table: 'categories'
       whitelist: [ 'id', 'name', 'lessonIds' ]
       sort: [ 'name' ]
+    curriculum:
+      item: 'curriculum'
+      table: 'curricula'
+      whitelist: [ 'id', 'title', 'lessonIds' ]
+      sort: [ 'title' ]
     entry:
       item: 'entry'
       table: 'entries'
@@ -107,11 +112,6 @@ exports.setConfig = (app) ->
       table: 'users'
       whitelist: [ 'id', 'name', 'email', 'lessonIds' ]
       sort: [ 'name' ]
-    curriculum:
-      item: 'curriculum'
-      table: 'curricula'
-      whitelist: [ 'id', 'title', 'lessonIds' ]
-      sort: [ 'title' ]
 
 
 exports.setDatabase = (app, models) ->
@@ -120,13 +120,12 @@ exports.setDatabase = (app, models) ->
   r.connect { host: 'localhost', port: 28015 }, (err, conn) ->
     throw err if (err)
 
+    console.log "Tables:"
     for model, options of models
-      console.log "running tableCreate for #{model}"
+      console.log "  #{options.table}"
 
       r.db('davinci').tableCreate(options.table).run conn, (err, res) ->
         if err
-          if err.name == "RqlRuntimeError"
-            console.log "Table <#{options.table}> already exists. Skipping creation."
-          else
+          unless err.name == "RqlRuntimeError"
             console.log err, res
             throw err
