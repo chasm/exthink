@@ -13,10 +13,14 @@ exports.findAll = (req, res, model) ->
         slice( getRange(req)... )
 
       query.run conn, (err, cursor) ->
-        throw err if err?
+        if err?
+          res.send 500
+          return
 
         cursor.toArray (err, result) ->
-          throw err if err?
+          if err?
+            res.send 500
+            return
 
           out = {}
           out[model.table] = _.map result, (item) ->
@@ -41,8 +45,6 @@ exports.findById = (req, res, model) ->
         pluck getFields(req.query, model)
 
       query.run conn, (err, result) ->
-        throw err if err?
-
         if !result?
           res.send 404
         else
